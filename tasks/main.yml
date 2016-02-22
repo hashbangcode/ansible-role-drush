@@ -8,7 +8,7 @@
     path: "{{ drush_install_path }}"
     state: directory
   when: drush_prefer_packaged_download
-  sudo: true
+  become: true
 
 - name: Check if requested Drush package file exists for download
   # Returns HTTP status code (string) of dynamically created file path
@@ -23,7 +23,7 @@
     dest: "{{ drush_install_path }}/drush"
     mode: "a+x"
   when: drush_prefer_packaged_download and drush_phar_http_code.stdout == "302"
-  sudo: true
+  become: true
 
 - name: Create drush symlink
   file:
@@ -31,7 +31,7 @@
     dest: "{{ drush_path }}"
     state: link
   when: drush_prefer_packaged_download and drush_phar_http_code.stdout == "302"
-  sudo: true
+  become: true
 
 
 # Install via Composer if a packaged download didn't exist or is not preferred.
@@ -39,4 +39,4 @@
 
 - include: global_drush_via_composer.yml
   when: drush_prefer_packaged_download == false or drush_phar_http_code.stdout != "302"
-  sudo: true
+  become: true
