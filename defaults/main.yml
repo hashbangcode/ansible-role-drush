@@ -11,7 +11,7 @@ drush_path: /usr/local/bin/drush
 
 # The version of Drush to install (examples: "8.0.2", "7.x", "7.1.0", "master").
 # This should be a string as it refers to a git branch, tag, or commit hash.
-drush_version: 8.0.2
+drush_version: 8.0.5
 
 # If set to `true`, the role will attempt to install Drush from a downloaded
 # .phar file. Note that .phar files are only available through later releases of
