@@ -16,12 +16,14 @@
   register: drush_phar_http_code
   changed_when: false
   when: drush_prefer_packaged_download
+  always_run: true
 
 - name: Download packaged Drush release
   get_url:
     url: https://github.com/drush-ops/drush/releases/download/{{ drush_version }}/drush.phar
     dest: "{{ drush_install_path }}/drush"
     mode: "a+x"
+  register: phar_download
   when: drush_prefer_packaged_download and drush_phar_http_code.stdout == "302"
   become: true
 
@@ -30,7 +32,9 @@
     src: "{{ drush_install_path }}/drush"
     dest: "{{ drush_path }}"
     state: link
-  when: drush_prefer_packaged_download and drush_phar_http_code.stdout == "302"
+  when: >
+    not phar_download.skipped|default(false) and
+    drush_prefer_packaged_download and drush_phar_http_code.stdout == "302"
   become: true
 
 
