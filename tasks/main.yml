@@ -3,38 +3,40 @@
 # Attempt to install via packaged download first if preferred.
 # ------------------------------------------------------------------------------
 
-- name: Prepare install path
-  file:
-    path: "{{ drush_install_path }}"
-    state: directory
+- block:
+    - name: Prepare install path
+      file:
+        path: "{{ drush_install_path }}"
+        state: directory
+
+    - name: Check if requested Drush package file exists for download
+      uri:
+        url: https://github.com/drush-ops/drush/releases/download/{{ drush_version }}/drush.phar
+        follow_redirects: none
+        status_code: 302
+      no_log: true
+      become: false
+
+    - name: Download packaged Drush release
+      get_url:
+        url: https://github.com/drush-ops/drush/releases/download/{{ drush_version }}/drush.phar
+        dest: "{{ drush_install_path }}/drush"
+        mode: "a+x"
+      register: phar_download
+
+    - name: Create drush symlink
+      file:
+        src: "{{ drush_install_path }}/drush"
+        dest: "{{ drush_path }}"
+        state: link
+      when: not phar_download.skipped|default(false)
+
+    - name: Register phar install success
+      set_fact: drush_phar_installed=true
+  rescue:
+    - name: Register phar install failure
+      set_fact: drush_phar_installed=false
   when: drush_prefer_packaged_download
-  become: true
-
-- name: Check if requested Drush package file exists for download
-  # Returns HTTP status code (string) of dynamically created file path
-  command: curl -s -o /dev/null -w "%{http_code}" https://github.com/drush-ops/drush/releases/download/{{ drush_version }}/drush.phar
-  register: drush_phar_http_code
-  changed_when: false
-  when: drush_prefer_packaged_download
-  always_run: true
-
-- name: Download packaged Drush release
-  get_url:
-    url: https://github.com/drush-ops/drush/releases/download/{{ drush_version }}/drush.phar
-    dest: "{{ drush_install_path }}/drush"
-    mode: "a+x"
-  register: phar_download
-  when: drush_prefer_packaged_download and drush_phar_http_code.stdout == "302"
-  become: true
-
-- name: Create drush symlink
-  file:
-    src: "{{ drush_install_path }}/drush"
-    dest: "{{ drush_path }}"
-    state: link
-  when: >
-    not phar_download.skipped|default(false) and
-    drush_prefer_packaged_download and drush_phar_http_code.stdout == "302"
   become: true
 
 
@@ -42,5 +44,5 @@
 # ------------------------------------------------------------------------------
 
 - include: global_drush_via_composer.yml
-  when: drush_prefer_packaged_download == false or drush_phar_http_code.stdout != "302"
+  when: not (drush_prefer_packaged_download and drush_phar_installed)
   become: true
