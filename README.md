@@ -52,7 +52,7 @@ None.
 
     - hosts: servers
     roles:
-      - { role: hashbangcode.pantheon-cli }
+      - { role: hashbangcode.drush }
 
 
 ## License
