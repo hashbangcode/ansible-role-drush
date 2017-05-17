@@ -62,6 +62,6 @@ MIT
 
 ## Author Information
 
-This role was created by [Dan Bohea](http://bohea.co.uk) originally for use with [Vlad](https://github.com/hashbangcode/vlad).
+[This role](https://github.com/hashbangcode/ansible-role-drush) was created by [Dan Bohea](http://bohea.co.uk) originally for use with [Vlad](https://github.com/hashbangcode/vlad).
 
 Hat tip to @geerlingguy. Some of this role is based on [his Drush role](https://github.com/geerlingguy/ansible-role-drush).
